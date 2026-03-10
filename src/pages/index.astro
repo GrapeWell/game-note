@@ -1,0 +1,157 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navigation from '../components/Navigation.astro';
+
+// 获取所有文章
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+
+// 按游戏分组
+const gameGroups = allPosts.reduce((acc, post) => {
+  const game = post.data.category;
+  if (!acc[game]) {
+    acc[game] = [];
+  }
+  acc[game].push(post);
+  return acc;
+}, {} as Record<string, typeof allPosts>);
+
+// 统计信息
+const totalPosts = allPosts.length;
+const totalGames = Object.keys(gameGroups).length;
+const allTags = new Set(allPosts.flatMap(p => p.data.tags || []));
+const totalTags = allTags.size;
+
+// 游戏分类信息
+const gameCategories = Object.entries(gameGroups).map(([game, posts]) => {
+  const tags = [...new Set(posts.flatMap(p => p.data.tags || []))];
+  return { game, postCount: posts.length, tags };
+});
+
+// 游戏封面图映射
+const gameCovers: Record<string, string> = {
+  '流放之路': '/images/games/poe.webp',
+  // 可以继续添加其他游戏的封面
+};
+---
+
+<BaseLayout title="首页 - 游戏手札">
+  <Navigation slot="sidebar" />
+
+  <div class="max-w-6xl mx-auto">
+    <!-- 欢迎标题 -->
+    <div class="mb-12">
+      <p class="text-xl text-gray-700 dark:text-gray-300">
+        记录游戏攻略、心得
+      </p>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="ps-card p-6 text-center">
+        <div class="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+          {totalPosts}
+        </div>
+        <div class="text-gray-700 dark:text-gray-300 font-medium">篇文章</div>
+      </div>
+      <div class="ps-card p-6 text-center">
+        <div class="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+          {totalGames}
+        </div>
+        <div class="text-gray-700 dark:text-gray-300 font-medium">个游戏</div>
+      </div>
+      <div class="ps-card p-6 text-center">
+        <div class="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+          {totalTags}
+        </div>
+        <div class="text-gray-700 dark:text-gray-300 font-medium">个标签</div>
+      </div>
+    </div>
+
+    <!-- 游戏分类 -->
+    <div class="mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {gameCategories.map(({ game, postCount, tags }) => (
+          <div class="ps-card p-6 group cursor-pointer">
+            <!-- 游戏封面占位区域 -->
+            <div class="game-cover mb-4">
+              {gameCovers[game] ? (
+                <img src={gameCovers[game]} alt={game} class="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="text-center">
+                    <div class="text-6xl mb-2">🎮</div>
+                    <div class="text-2xl font-bold text-white drop-shadow-lg">{game}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <!-- 游戏信息 -->
+            <div class="mb-4">
+              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {game}
+              </h3>
+              <p class="text-gray-700 dark:text-gray-300">
+                共 {postCount} 篇文章
+              </p>
+            </div>
+
+            <!-- 标签列表 -->
+            <div class="flex flex-wrap gap-2">
+              {tags.map(tag => (
+                <a
+                  href={`/category/${game}/${tag}`}
+                  class="px-3 py-1 text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                  onclick="event.stopPropagation()"
+                >
+                  {tag}
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- 快速导航 -->
+    <div class="ps-card p-6">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">快速开始</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a
+          href="/tags"
+          class="flex items-center gap-3 p-4 rounded-lg hover:bg-blue-600/10 dark:hover:bg-blue-600/20 transition-colors"
+        >
+          <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          <div>
+            <div class="font-medium text-gray-900 dark:text-white">浏览所有标签</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">按标签查找文章</div>
+          </div>
+        </a>
+        <div class="flex items-center gap-3 p-4 rounded-lg">
+          <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <div>
+            <div class="font-medium text-gray-900 dark:text-white">使用左侧导航</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">按游戏和分类浏览</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // 游戏卡片点击跳转到第一个标签
+  document.querySelectorAll('.ps-card.group').forEach((card, index) => {
+    card.addEventListener('click', (e) => {
+      const firstTag = card.querySelector('a');
+      if (firstTag && e.target === card) {
+        window.location.href = firstTag.href;
+      }
+    });
+  });
+</script>

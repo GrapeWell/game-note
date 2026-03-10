@@ -1,0 +1,138 @@
+---
+import { getCollection } from 'astro:content';
+
+// 获取所有文章
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+
+// 按游戏分组
+const gameGroups = allPosts.reduce((acc, post) => {
+  const game = post.data.category;
+  if (!acc[game]) {
+    acc[game] = [];
+  }
+  acc[game].push(post);
+  return acc;
+}, {} as Record<string, typeof allPosts>);
+
+// 获取每个游戏下的标签（作为二级菜单）
+const gameCategories = Object.entries(gameGroups).map(([game, posts]) => {
+  const tags = [...new Set(posts.flatMap(p => p.data.tags || []))];
+  return { game, tags };
+});
+---
+
+<nav class="space-y-2">
+  <!-- 所有标签链接 -->
+  <a
+    href="/tags"
+    data-navlink
+    class="block px-3 py-2 text-gray-900 dark:text-gray-200 font-medium hover:bg-blue-600/10 dark:hover:bg-blue-600/20 rounded-lg flex items-center gap-2"
+  >
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+    </svg>
+    <span>所有标签</span>
+  </a>
+
+  <div class="border-t border-gray-200/50 dark:border-gray-700/50 my-2"></div>
+
+  {gameCategories.map(({ game, tags }, index) => (
+    <div class="border-b border-gray-200/50 dark:border-gray-700/50 pb-2">
+      <button
+        class="w-full text-left px-3 py-2 text-gray-900 dark:text-gray-200 font-medium hover:bg-blue-600/10 dark:hover:bg-blue-600/20 rounded-lg flex items-center justify-between"
+        data-game={game}
+        data-expanded={index === 0 ? 'true' : 'false'}
+      >
+        <span>{game}</span>
+        <svg
+          class="w-4 h-4 transition-transform duration-200"
+          data-icon
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          style={index === 0 ? '' : 'transform: rotate(-90deg)'}
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div
+        class="ml-4 overflow-hidden duration-200"
+        data-submenu
+        style={index === 0 ? 'max-height: 500px; margin-top: 0.25rem;' : 'max-height: 0; margin-top: 0;'}
+      >
+        <div class="space-y-1">
+          {tags.map(tag => (
+            <a
+              href={`/category/${game}/${tag}`}
+              data-navlink
+              class="block px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-600/5 dark:hover:bg-blue-600/10 rounded-lg transition-all"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  ))}
+</nav>
+
+<script>
+  function initNavigation() {
+    // 移除旧的事件监听器标记
+    document.querySelectorAll('[data-game]').forEach(button => {
+      // 移除旧的监听器（如果存在）
+      const oldHandler = (button as any)._clickHandler;
+      if (oldHandler) {
+        button.removeEventListener('click', oldHandler);
+      }
+
+      // 创建新的处理函数
+      const clickHandler = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const submenu = button.nextElementSibling as HTMLElement;
+        const icon = button.querySelector('[data-icon]') as HTMLElement;
+        const isExpanded = button.getAttribute('data-expanded') === 'true';
+
+        if (submenu && icon) {
+          if (isExpanded) {
+            // 收起
+            submenu.style.maxHeight = '0';
+            submenu.style.marginTop = '0';
+            icon.style.transform = 'rotate(-90deg)';
+            button.setAttribute('data-expanded', 'false');
+          } else {
+            // 展开
+            submenu.style.maxHeight = '500px';
+            submenu.style.marginTop = '0.25rem';
+            icon.style.transform = 'rotate(0deg)';
+            button.setAttribute('data-expanded', 'true');
+          }
+        }
+      };
+
+      // 保存处理函数引用，方便后续移除
+      (button as any)._clickHandler = clickHandler;
+      button.addEventListener('click', clickHandler);
+    });
+  }
+
+  function updateActiveLinks() {
+    const path = window.location.pathname;
+    document.querySelectorAll<HTMLAnchorElement>('[data-navlink]').forEach(link => {
+      const href = link.getAttribute('href') ?? '';
+      link.classList.toggle('nav-link-active', path === href);
+    });
+  }
+
+  // 初始化
+  initNavigation();
+  updateActiveLinks();
+
+  // View Transitions 后：重新绑定事件 + 更新激活状态
+  document.addEventListener('astro:after-swap', () => {
+    initNavigation();
+    updateActiveLinks();
+  });
+</script>

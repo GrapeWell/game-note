@@ -1,0 +1,178 @@
+---
+import '../styles/global.css';
+import SEO from '../components/SEO.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+  publishedTime?: Date;
+  tags?: string[];
+}
+
+const {
+  title = '游戏手札',
+  description = '记录游戏攻略与心得',
+  image,
+  article,
+  publishedTime,
+  tags
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <ClientRouter />
+    <SEO
+      title={title}
+      description={description}
+      image={image}
+      article={article}
+      publishedTime={publishedTime}
+      tags={tags}
+    />
+    <!-- 主题初始化脚本 - 防止闪烁 -->
+    <script is:inline>
+      function applyTheme() {
+        const theme = (() => {
+          if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+            return localStorage.getItem('theme');
+          }
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+          }
+          return 'light';
+        })();
+
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+
+      // 初始加载时应用主题
+      applyTheme();
+
+      // View Transitions: 在 DOM 置换前把当前主题写入新文档
+      // 这样新文档挂载时就已经有正确的 dark class，彻底避免闪烁
+      document.addEventListener('astro:before-swap', (event) => {
+        if (document.documentElement.classList.contains('dark')) {
+          event.newDocument.documentElement.classList.add('dark');
+        } else {
+          event.newDocument.documentElement.classList.remove('dark');
+        }
+      });
+
+      // View Transitions 页面切换后兜底确认主题
+      document.addEventListener('astro:after-swap', applyTheme);
+    </script>
+  </head>
+  <body class="bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <!-- 移动端菜单按钮 -->
+    <button
+      id="mobile-menu-button"
+      class="lg:hidden fixed top-4 left-4 z-50 p-2 glass-effect rounded-lg shadow-lg"
+      aria-label="打开菜单"
+    >
+      <svg class="w-6 h-6 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="flex min-h-screen">
+      <!-- 左侧导航栏 -->
+      <aside
+        id="sidebar"
+        class="w-64 glass-effect fixed h-full overflow-y-auto z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300"
+      >
+        <div class="p-4">
+          <div class="flex items-center justify-between mb-6">
+            <a href="/" class="text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              游戏手札
+            </a>
+            <div class="flex items-center gap-2">
+              <ThemeToggle />
+              <button
+                id="close-sidebar"
+                class="lg:hidden p-1 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 rounded transition-colors"
+                aria-label="关闭菜单"
+              >
+                <svg class="w-5 h-5 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <slot name="sidebar" />
+        </div>
+      </aside>
+
+      <!-- 遮罩层 -->
+      <div
+        id="sidebar-overlay"
+        class="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30 hidden"
+        transition:persist
+      ></div>
+
+      <!-- 右侧内容区 -->
+      <main class="flex-1 lg:ml-64 p-4 md:p-8 pt-16 lg:pt-8">
+        <slot />
+      </main>
+    </div>
+
+    <script>
+      function initSidebar() {
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function openSidebar() {
+          sidebar?.classList.remove('-translate-x-full');
+          overlay?.classList.remove('hidden');
+          // Fix 3: 打开菜单后隐藏汉堡按钮，避免遮挡菜单内容
+          mobileMenuButton?.classList.add('hidden');
+        }
+
+        function closeSidebarFn() {
+          sidebar?.classList.add('-translate-x-full');
+          overlay?.classList.add('hidden');
+          // Fix 3: 关闭菜单后恢复汉堡按钮
+          mobileMenuButton?.classList.remove('hidden');
+        }
+
+        mobileMenuButton?.addEventListener('click', openSidebar);
+        closeSidebar?.addEventListener('click', closeSidebarFn);
+        overlay?.addEventListener('click', closeSidebarFn);
+
+        // Fix 4: 点击导航链接后自动关闭侧边栏（仅移动端）
+        document.querySelectorAll('[data-navlink]').forEach(link => {
+          link.addEventListener('click', () => {
+            if (window.innerWidth < 1024) {
+              closeSidebarFn();
+            }
+          });
+        });
+      }
+
+      // 初始化
+      initSidebar();
+
+      // View Transitions 后重新初始化
+      document.addEventListener('astro:after-swap', initSidebar);
+    </script>
+  </body>
+</html>
