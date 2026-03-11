@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Navigation from '../../../components/Navigation.astro';
 import { getGameBanner } from '../../../utils/games';
@@ -55,9 +56,9 @@ const gameBanner = getGameBanner(game as string);
   <!-- F-004: 顶部展示游戏 Banner -->
   <div class="relative w-full h-44 md:h-56 rounded-xl overflow-hidden mb-8 shadow-lg">
     {gameBanner ? (
-      <img
+      <Image
         src={gameBanner}
-        alt={game}
+        alt={game as string}
         class="w-full h-full object-cover object-top"
         loading="eager"
       />
@@ -72,69 +73,42 @@ const gameBanner = getGameBanner(game as string);
   </div>
 
   <!-- F-004: 列表居中 -->
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     {posts.length === 0 ? (
-      <p class="text-center text-gray-500 dark:text-gray-400 py-16">暂无文章</p>
+      <p class="text-center text-text-faint py-16">暂无文章</p>
     ) : (
-      <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {posts.map(post => (
           <a
             href={`/posts/${post.slug}`}
-            class="block ps-card overflow-hidden group"
+            class="block ps-card border-l-3 border-l-text-accent p-5 group"
           >
-            <div class="flex flex-col sm:flex-row">
-              <!-- F-004: 封面图（无则默认图占位） -->
-              <div class="sm:w-44 h-36 sm:h-auto shrink-0 bg-gray-100 dark:bg-gray-800">
-                {post.data.cover ? (
-                  <img
-                    src={post.data.cover}
-                    alt={post.data.title}
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-800 to-indigo-600">
-                    <svg
-                      class="w-10 h-10 text-white/30"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.5"
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
+            <h2 class="text-lg font-semibold text-text-primary mb-1 group-hover:text-text-accent transition-colors line-clamp-2">
+              {post.data.title}
+            </h2>
+            {post.data.description && (
+              <p class="text-text-muted text-sm line-clamp-2 mb-3">
+                {post.data.description}
+              </p>
+            )}
+            <div class="flex items-center flex-wrap gap-2 text-xs text-text-faint mt-auto">
+              <time datetime={post.data.date.toISOString()}>
+                {post.data.date.toLocaleDateString('zh-CN', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+              {post.data.tags && post.data.tags.length > 0 && (
+                <>
+                  <span>·</span>
+                  <div class="flex gap-1.5">
+                    {post.data.tags.map(t => (
+                      <span class="px-2 py-0.5 bg-bg-muted rounded-full">{t}</span>
+                    ))}
                   </div>
-                )}
-              </div>
-
-              <!-- F-004: 标题、发布日期、描述 -->
-              <div class="flex-1 p-4 sm:p-5 flex flex-col justify-between">
-                <div>
-                  <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-                    {post.data.title}
-                  </h2>
-                  {post.data.description && (
-                    <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
-                      {post.data.description}
-                    </p>
-                  )}
-                </div>
-                <time
-                  class="text-xs text-gray-400 dark:text-gray-500"
-                  datetime={post.data.date.toISOString()}
-                >
-                  {post.data.date.toLocaleDateString('zh-CN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </time>
-              </div>
+                </>
+              )}
             </div>
           </a>
         ))}

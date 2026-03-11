@@ -1,20 +1,84 @@
 @import "tailwindcss";
 
+/* 语义化主题变量 */
+.light {
+  /* 背景 */
+  --bg-base: #f8f9fa;
+  --bg-base-end: #e9ecef;
+  --bg-surface: rgba(255,255,255,0.95);
+  --bg-surface-end: rgba(255,255,255,0.9);
+  --bg-muted: #e9ecef;
+  --bg-accent: #e3f2fd;
+  --bg-hover: rgba(0,48,135,0.1);
+  --bg-hover-muted: rgba(0,0,0,0.05);
+  --bg-toggle: rgba(0,0,0,0.05);
+
+  /* 文字 */
+  --text-primary: #0d0f12;
+  --text-secondary: #343a40;
+  --text-muted: #495057;
+  --text-faint: #adb5bd;
+  --text-accent: #003087;
+  --text-accent-hover: #003087;
+  --text-accent-light: #002566;
+
+  /* 边框 */
+  --border-default: rgba(0,0,0,0.08);
+  --border-muted: rgba(0,0,0,0.05);
+
+  /* 侧边栏 */
+  --sidebar-bg: rgba(255,255,255,0.97);
+  --sidebar-shadow: 2px 0 12px rgba(0,0,0,0.06);
+
+  /* 卡片 */
+  --card-bg: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 100%);
+  --card-border: rgba(0,0,0,0.1);
+  --card-hover-shadow: 0 12px 24px rgba(0,48,135,0.3);
+
+  /* 导航激活链接 */
+  --nav-active-bg: color-mix(in srgb, #003087 12%, transparent);
+  --nav-active-text: #002566;
+}
+
+.dark {
+  --bg-base: #0d0f12;
+  --bg-base-end: #1a1d23;
+  --bg-surface: rgba(26,29,35,0.95);
+  --bg-surface-end: rgba(26,29,35,0.8);
+  --bg-muted: #343a40;
+  --bg-accent: rgba(0,17,51,0.3);
+  --bg-hover: rgba(33,150,243,0.2);
+  --bg-hover-muted: rgba(255,255,255,0.05);
+  --bg-toggle: rgba(255,255,255,0.05);
+
+  --text-primary: #ffffff;
+  --text-secondary: #ced4da;
+  --text-muted: #adb5bd;
+  --text-faint: #6c757d;
+  --text-accent: #42a5f5;
+  --text-accent-hover: #42a5f5;
+  --text-accent-light: #64b5f6;
+
+  --border-default: rgba(255,255,255,0.08);
+  --border-muted: rgba(255,255,255,0.05);
+
+  --sidebar-bg: rgba(26,29,35,0.95);
+  --sidebar-shadow: none;
+
+  --card-bg: linear-gradient(135deg, rgba(26,29,35,0.95) 0%, rgba(26,29,35,0.8) 100%);
+  --card-border: rgba(255,255,255,0.1);
+  --card-hover-shadow: 0 12px 24px rgba(33,150,243,0.2);
+
+  --nav-active-bg: color-mix(in srgb, #42a5f5 15%, transparent);
+  --nav-active-text: #42a5f5;
+}
+
 /* 导航激活链接样式 */
 .nav-link-active {
-  background-color: color-mix(in srgb, var(--color-blue-600) 12%, transparent);
-  color: var(--color-blue-700);
+  background-color: var(--nav-active-bg);
+  color: var(--nav-active-text);
   font-weight: 500;
 }
-
-:is(.dark .nav-link-active) {
-  background-color: color-mix(in srgb, var(--color-blue-400) 15%, transparent);
-  color: var(--color-blue-400);
-  font-weight: 500;
-}
-
-/* 配置 Tailwind 4.x 暗色模式 */
-@variant dark (&:is(.dark *));
 
 @theme {
   --color-*: initial;
@@ -46,6 +110,26 @@
   --color-blue-800: #001a4d;
   --color-blue-900: #001133;
 
+  /* 语义化颜色 - 映射到 CSS 变量 */
+  --color-bg-base: var(--bg-base);
+  --color-bg-base-end: var(--bg-base-end);
+  --color-bg-muted: var(--bg-muted);
+  --color-bg-accent: var(--bg-accent);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-hover-muted: var(--bg-hover-muted);
+  --color-bg-toggle: var(--bg-toggle);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-text-accent: var(--text-accent);
+  --color-text-accent-hover: var(--text-accent-hover);
+  --color-text-accent-light: var(--text-accent-light);
+
+  --color-border-default: var(--border-default);
+  --color-border-muted: var(--border-muted);
+
   /* 字体配置 */
   --font-sans: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
 }
@@ -55,41 +139,29 @@ body {
   font-family: var(--font-sans);
 }
 
-/* 侧边栏样式（浅色模式使用纯实色背景，移除毛玻璃） */
+/* 侧边栏样式 */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
+  background: var(--sidebar-bg);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--sidebar-shadow);
 }
 
-:is(.dark .glass-effect) {
-  background: rgba(26, 29, 35, 0.95);
+.dark .glass-effect {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* PlayStation 风格卡片 */
 .ps-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+  background: var(--card-bg);
   border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  /* 只过渡 hover 相关属性，避免 dark class 切换时背景色产生可见动画 */
+  border: 1px solid var(--card-border);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-:is(.dark .ps-card) {
-  background: linear-gradient(135deg, rgba(26, 29, 35, 0.95) 0%, rgba(26, 29, 35, 0.8) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ps-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 48, 135, 0.3);
-}
-
-:is(.dark .ps-card:hover) {
-  box-shadow: 0 12px 24px rgba(33, 150, 243, 0.2);
+  box-shadow: var(--card-hover-shadow);
 }
 
 /* 游戏封面图容器 */
@@ -149,11 +221,7 @@ body {
 
 /* Prose 样式增强 */
 .prose {
-  color: var(--color-gray-900);
-}
-
-:is(.dark .prose) {
-  color: var(--color-gray-100);
+  color: var(--text-primary);
 }
 
 /* 标题样式 - 移除默认的蓝色下划线 */
@@ -168,11 +236,7 @@ body {
   font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 1rem;
-  color: var(--color-gray-900);
-}
-
-:is(.dark .prose h2) {
-  color: var(--color-white);
+  color: var(--text-primary);
 }
 
 .prose h3 {
@@ -180,11 +244,7 @@ body {
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
-  color: var(--color-gray-900);
-}
-
-:is(.dark .prose h3) {
-  color: var(--color-white);
+  color: var(--text-primary);
 }
 
 /* 标题内的链接 - 移除下划线和蓝色 */
@@ -201,14 +261,9 @@ body {
   content: '#';
   position: absolute;
   left: -1.5rem;
-  color: var(--color-gray-400);
+  color: var(--text-faint);
   opacity: 0;
   transition: opacity 0.2s;
-}
-
-:is(.dark .prose h2 a::before),
-:is(.dark .prose h3 a::before) {
-  color: var(--color-gray-500);
 }
 
 .prose h2:hover a::before,
@@ -231,37 +286,24 @@ body {
 }
 
 .prose code {
-  background-color: var(--color-gray-100);
+  background-color: var(--bg-muted);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
-  color: var(--color-gray-900);
-}
-
-:is(.dark .prose code) {
-  background-color: var(--color-gray-800);
-  color: var(--color-gray-100);
+  color: var(--text-primary);
 }
 
 .prose pre {
-  background-color: var(--color-gray-100);
+  background-color: var(--bg-muted);
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
   margin-bottom: 1rem;
 }
 
-:is(.dark .prose pre) {
-  background-color: var(--color-gray-800);
-}
-
 .prose a {
-  color: var(--color-blue-700);
+  color: var(--text-accent-light);
   text-decoration: underline;
-}
-
-:is(.dark .prose a) {
-  color: var(--color-blue-300);
 }
 
 .prose a:hover {
@@ -269,16 +311,11 @@ body {
 }
 
 .prose blockquote {
-  border-left: 4px solid var(--color-gray-300);
+  border-left: 4px solid var(--text-faint);
   padding-left: 1rem;
   font-style: italic;
   margin: 1rem 0;
-  color: var(--color-gray-700);
-}
-
-:is(.dark .prose blockquote) {
-  border-left-color: var(--color-gray-600);
-  color: var(--color-gray-300);
+  color: var(--text-secondary);
 }
 
 .prose table {
@@ -288,25 +325,15 @@ body {
 }
 
 .prose th {
-  background-color: var(--color-gray-100);
+  background-color: var(--bg-muted);
   padding: 0.5rem;
   text-align: left;
   font-weight: 600;
-  color: var(--color-gray-900);
-}
-
-:is(.dark .prose th) {
-  background-color: var(--color-gray-800);
-  color: var(--color-gray-100);
+  color: var(--text-primary);
 }
 
 .prose td {
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--border-default);
   padding: 0.5rem;
-  color: var(--color-gray-900);
-}
-
-:is(.dark .prose td) {
-  border-color: var(--color-gray-700);
-  color: var(--color-gray-100);
+  color: var(--text-primary);
 }

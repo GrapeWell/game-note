@@ -21,8 +21,8 @@ const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 <BaseLayout title="所有标签 - 游戏手札" description="浏览所有文章标签">
   <Navigation slot="sidebar" />
 
-  <div class="max-w-4xl">
-    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-8">所有标签</h1>
+  <div class="max-w-5xl">
+    <h1 class="text-4xl font-bold text-text-primary mb-8">所有标签</h1>
 
     <div class="flex flex-wrap gap-4">
       {sortedTags.map(([tag, count]) => (
@@ -31,10 +31,10 @@ const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
           class="group relative px-6 py-3 ps-card"
         >
           <div class="flex items-center gap-2">
-            <span class="text-lg font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <span class="text-lg font-medium text-text-primary group-hover:text-text-accent transition-colors">
               {tag}
             </span>
-            <span class="px-2 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-full">
+            <span class="px-2 py-1 text-xs font-semibold text-text-muted bg-bg-muted rounded-full">
               {count}
             </span>
           </div>
@@ -43,7 +43,7 @@ const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
     </div>
 
     {sortedTags.length === 0 && (
-      <p class="text-gray-700 dark:text-gray-300">暂无标签</p>
+      <p class="text-text-secondary">暂无标签</p>
     )}
   </div>
 </BaseLayout>
