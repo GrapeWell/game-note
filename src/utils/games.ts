@@ -1,12 +1,14 @@
 import type { ImageMetadata } from 'astro';
 import poeBanner from '../assets/images/banners/poe.jpg';
 import poeCover from '../assets/images/games/poe.webp';
+import poeLogo from '../assets/images/logos/poe.png';
 
-/** 游戏配置：映射分类名称到 Banner / Cover 图片 */
-const gameConfig: Record<string, { banner?: ImageMetadata; cover?: ImageMetadata }> = {
+/** 游戏配置：映射分类名称到 Banner / Cover / Logo 图片 */
+const gameConfig: Record<string, { banner?: ImageMetadata; cover?: ImageMetadata; logo?: ImageMetadata }> = {
   '流放之路': {
     banner: poeBanner,
     cover: poeCover,
+    logo: poeLogo,
   },
 };
 
@@ -24,4 +26,12 @@ export function getGameBanner(game: string): ImageMetadata | undefined {
  */
 export function getGameCover(game: string): ImageMetadata | undefined {
   return gameConfig[game]?.cover;
+}
+
+/**
+ * 获取游戏 Logo 图片。
+ * 如果没有配置则返回 undefined。
+ */
+export function getGameLogo(game: string): ImageMetadata | undefined {
+  return gameConfig[game]?.logo;
 }

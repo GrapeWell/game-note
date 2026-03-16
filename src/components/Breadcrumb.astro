@@ -1,0 +1,40 @@
+---
+import { House } from '@lucide/astro';
+
+// 面包屑导航组件
+interface Props {
+  items: Array<{
+    label: string;
+    href?: string;
+  }>;
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="面包屑导航" class="flex items-center gap-2 text-sm text-text-secondary">
+  <a href="/" class="hover:text-text-accent transition-colors">
+    <House class="w-4 h-4" />
+  </a>
+
+  {items.map((item, index) => (
+    <>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      {item.href ? (
+        <a
+          href={item.href}
+          class="hover:text-text-accent transition-colors"
+          aria-current={index === items.length - 1 ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ) : (
+        <span class="text-text-primary font-medium" aria-current="page">
+          {item.label}
+        </span>
+      )}
+    </>
+  ))}
+</nav>

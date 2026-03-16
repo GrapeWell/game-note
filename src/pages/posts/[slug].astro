@@ -2,20 +2,29 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navigation from '../../components/Navigation.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
-  return posts.map(post => ({
+  const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+  return allPosts.map(post => ({
     params: { slug: post.slug },
-    props: { post }
+    props: { post, allPosts }
   }));
 }
 
-const { post } = Astro.props;
+const { post, allPosts } = Astro.props;
 const { Content, headings } = await post.render();
 
 // 过滤出 H2 和 H3 级别的标题作为目录
 const tocHeadings = headings.filter(h => h.depth <= 3);
+
+// 获取相关文章（同标签的其他文章，最多5篇）
+const relatedPosts = allPosts
+  .filter(p =>
+    p.slug !== post.slug &&
+    p.data.tags?.some(tag => post.data.tags?.includes(tag))
+  )
+  .slice(0, 5);
 ---
 
 <BaseLayout
@@ -26,6 +35,16 @@ const tocHeadings = headings.filter(h => h.depth <= 3);
   tags={post.data.tags}
 >
   <Navigation slot="sidebar" />
+
+  <!-- 面包屑导航 -->
+  <div class="mb-6">
+    <Breadcrumb
+      items={[
+        { label: post.data.category, href: `/game/${post.data.category}` },
+        { label: post.data.title }
+      ]}
+    />
+  </div>
 
   <div class="flex justify-center w-full">
     <div class="flex gap-8 max-w-7xl w-full">
@@ -66,25 +85,52 @@ const tocHeadings = headings.filter(h => h.depth <= 3);
         </article>
       </div>
 
-      <!-- 文章目录 - 固定在右侧 -->
-      {tocHeadings.length > 0 && (
-        <aside class="hidden xl:block w-64 flex-shrink-0">
-          <div class="sticky top-8">
-            <h2 class="text-sm font-semibold text-text-primary mb-4">目录</h2>
-            <nav class="space-y-2">
-              {tocHeadings.map(heading => (
-                <a
-                  href={`#${heading.slug}`}
-                  class="block text-sm text-text-secondary hover:text-text-accent transition-colors"
-                  style={`padding-left: ${(heading.depth - 2) * 0.75}rem`}
-                >
-                  {heading.text}
-                </a>
-              ))}
-            </nav>
-          </div>
-        </aside>
-      )}
+      <!-- 文章目录 + 相关文章 - 固定在右侧 -->
+      <aside class="hidden xl:block w-64 flex-shrink-0">
+        <div class="sticky top-8 space-y-8">
+          {tocHeadings.length > 0 && (
+            <div>
+              <h2 class="text-sm font-semibold text-text-primary mb-4">目录</h2>
+              <nav class="space-y-2">
+                {tocHeadings.map(heading => (
+                  <a
+                    href={`#${heading.slug}`}
+                    class="block text-sm text-text-secondary hover:text-text-accent transition-colors"
+                    style={`padding-left: ${(heading.depth - 2) * 0.75}rem`}
+                  >
+                    {heading.text}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          )}
+
+          {relatedPosts.length > 0 && (
+            <div>
+              <h2 class="text-sm font-semibold text-text-primary mb-4">相关文章</h2>
+              <div class="space-y-3">
+                {relatedPosts.map(related => (
+                  <a
+                    href={`/posts/${related.slug}`}
+                    class="block p-3 bg-bg-muted hover:bg-bg-hover rounded-lg transition-colors"
+                  >
+                    <h3 class="text-sm font-medium text-text-primary line-clamp-2 mb-1">
+                      {related.data.title}
+                    </h3>
+                    <div class="flex gap-1.5 flex-wrap">
+                      {related.data.tags?.slice(0, 2).map(tag => (
+                        <span class="text-xs text-text-secondary px-1.5 py-0.5 bg-bg-base rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </aside>
     </div>
   </div>
 
