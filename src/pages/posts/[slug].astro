@@ -86,7 +86,7 @@ const relatedPosts = allPosts
       </div>
 
       <!-- 文章目录 + 相关文章 - 固定在右侧 -->
-      <aside class="hidden xl:block w-64 flex-shrink-0">
+      <aside class="hidden xl:block w-64 shrink-0">
         <div class="sticky top-8 space-y-8">
           {tocHeadings.length > 0 && (
             <div>
@@ -137,7 +137,7 @@ const relatedPosts = allPosts
     <!-- 返回顶部按钮 -->
     <button
       id="back-to-top"
-      class="fixed bottom-8 right-8 p-3 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all opacity-0 pointer-events-none"
+      class="fixed bottom-8 right-8 p-3 bg-linear-to-br from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all opacity-0 pointer-events-none"
       aria-label="返回顶部"
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
