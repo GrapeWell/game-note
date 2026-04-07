@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(pnpm add:*)",
-      "Bash(find /c/myproject/game-note -maxdepth 2 -name \"tailwind*\" -o -name \".tailwind*\" 2>/dev/null | grep -v node_modules)",
-      "Bash(cd \"C:/myproject/game-note\" && pnpm build)"
-    ]
-  }
-}

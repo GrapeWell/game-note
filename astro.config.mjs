@@ -1,30 +1,19 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
-import tailwindcss from '@tailwindcss/vite';
-import remarkGfm from 'remark-gfm';
-import remarkDirective from 'remark-directive';
-import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import { remarkVideoEmbed } from './src/plugins/remark-video-embed.js';
-import pagefind from "astro-pagefind";
+import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://game.grapewell.cn/',
-  integrations: [
-    sitemap(),
-    pagefind()
-  ],
-  prefetch: true,
-  vite: {
-    plugins: [tailwindcss()],
-  },
-  markdown: {
-    remarkPlugins: [remarkGfm, remarkDirective, remarkVideoEmbed],
-    rehypePlugins: [
-      rehypeSlug,
-      [rehypeAutolinkHeadings, { behavior: 'wrap' }]
-    ],
-  }
+	integrations: [
+		starlight({
+			title: '游戏笔记',
+			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/GrapeWell' }],
+			sidebar: [
+				{
+					label: '流放之路',
+					autogenerate: { directory: 'poe' },
+				}
+			],
+		}),
+	],
 });
